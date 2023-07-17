@@ -16,10 +16,8 @@ Including another URLconf
 """
 
 from django.contrib import admin
-# from diffinform.views import *
 from django.urls import path, include
-
-from diffinform.views import pageNotFound
+from diffinform.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
