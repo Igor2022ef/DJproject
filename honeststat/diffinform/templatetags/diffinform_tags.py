@@ -1,5 +1,6 @@
 from django import template
 from diffinform.models import *
+from diffinform.views import *
 
 register = template.Library()
 
@@ -11,3 +12,7 @@ def get_categories():
 def show_categories(cat_selected):
     cats = Category.objects.all()
     return {"cats": cats, 'cat_selected': cat_selected}
+
+@register.inclusion_tag('diffinform/list_menu.html')
+def show_menu(menu=menu):
+    return {"menu": menu}
