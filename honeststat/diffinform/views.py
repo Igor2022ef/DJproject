@@ -33,8 +33,8 @@ def contact(request):
 def login(request):
     return HttpResponse("Авторизация")
 
-def show_post(request, post_id):
-    post = get_object_or_404(Articles, pk=post_id)
+def show_post(request, post_slug):
+    post = get_object_or_404(Articles, slug=post_slug)
 
     context = {
         'post': post,
