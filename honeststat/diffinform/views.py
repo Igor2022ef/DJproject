@@ -30,11 +30,9 @@ def addpage(request):
         form = AddPostForm(request.POST)
         if form.is_valid():
             # print(form.cleaned_data)
-            try:
-                Articles.objects.create(**form.cleaned_data)
-                return redirect('home')
-            except:
-                form.add_error(None, 'Ошибка добавления поста')
+            form.save()
+            return redirect('home')
+
     else:
         form = AddPostForm()
     return render(request, 'diffinform/addpage.html', {'form': form, 'menu': menu, 'title': 'Добавление статьи'})
