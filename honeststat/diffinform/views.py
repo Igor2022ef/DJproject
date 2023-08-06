@@ -53,15 +53,19 @@ def show_post(request, post_slug):
     }
     return render(request, 'diffinform/post.html', context=context)
 
-def show_category(request, cat_id):
-    posts = Articles.objects.filter(cat_id=cat_id)
+def show_category(request, cat_slug):
+    posts = Articles.objects.all()
     if len(posts) == 0:
         raise Http404()
+    posts1=[]
+    for p in posts:
+        if p.cat.slug==cat_slug:
+            posts1.append(p)
     context = {
-        'posts': posts,
+        'posts': posts1,
         'menu': menu,
-        'title': 'Главная страница',
-        'cat_selected': cat_id,
+        'title': cat_slug,
+        'cat_selected': cat_slug,
     }
     return render(request, 'diffinform/index.html', context=context)
 
