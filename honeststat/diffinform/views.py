@@ -7,8 +7,8 @@ from .models import *
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
+        {'title': "Построить графики", 'url_name': 'graf'},
         {'title': "Войти", 'url_name': 'login'},
-
 ]
 
 def index(request):
@@ -32,7 +32,6 @@ def addpage(request):
             # print(form.cleaned_data)
             form.save()
             return redirect('home')
-
     else:
         form = AddPostForm()
     return render(request, 'diffinform/addpage.html', {'form': form, 'menu': menu, 'title': 'Добавление статьи'})
@@ -44,6 +43,8 @@ def login(request):
     return HttpResponse("Авторизация")
 
 def show_post(request, post_slug):
+    # post_check = Articles.objects.all()
+    # print(post_check)
     post = get_object_or_404(Articles, slug=post_slug)
     context = {
         'post': post,
@@ -68,6 +69,18 @@ def show_category(request, cat_slug):
         'cat_selected': cat_slug,
     }
     return render(request, 'diffinform/index.html', context=context)
+
+def show_graf(request):
+    graf_dates = Buildgraf.objects.all()
+    context = {
+        'graf_inform': graf_dates,
+        'menu': menu,
+        'title': 'Графики статистических зависимостей',
+    }
+    return render(request, 'diffinform/graf.html', context=context)
+
+
+
 
 # def categories(request, cat):
 #     if (request.GET):
