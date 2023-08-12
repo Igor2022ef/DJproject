@@ -29,4 +29,13 @@ class Category(models.Model):
         # return reverse('category', kwargs={'cat_id': self.pk})
         return reverse('category', kwargs={'cat_slug': self.slug})
 
+class Buildgraf(models.Model):
+    name_product = models.CharField(max_length=150)
+    cost = models.IntegerField(null=True)
+    weight = models.CharField(max_length=150)
+    date = models.CharField(max_length=150)
+    shop = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name_product
 
