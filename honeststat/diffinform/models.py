@@ -9,7 +9,7 @@ class Articles(models.Model):
     photo = models.ImageField(blank=True, upload_to="photos/%Y/%m/%d/", verbose_name='Рисунок графика')
     time_create = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
     time_update = models.DateTimeField(auto_now=True, verbose_name='Время изменения')
-    cat = models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name='Категория')
+    cat = models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name='Категория', null=True)
     is_published = models.BooleanField(default=True, verbose_name='Публикация')
 
     def __str__(self):
