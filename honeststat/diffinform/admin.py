@@ -16,10 +16,6 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     prepopulated_fields = {"slug": ("name",)}
 
-# class Build_grafAdmin(admin.ModelAdmin):
-#     list_display = ('name_product', 'shop')
-#     search_fields = ('name', 'shop')
-
 # класс обработки данных
 class Build_grafResource(resources.ModelResource):
     class Meta:
