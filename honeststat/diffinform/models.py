@@ -18,6 +18,16 @@ class Articles(models.Model):
     def get_absolute_url(self):
         return reverse('post', kwargs={'post_slug': self.slug})
 
+class Build_graf(models.Model):
+    name_product = models.CharField(max_length=150, blank=True)
+    cost = models.IntegerField(max_length=150, null=True)
+    weight = models.CharField(max_length=150, blank=True)
+    date = models.CharField(max_length=150, blank=True)
+    shop = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name_product
+
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name='Название категории')
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
