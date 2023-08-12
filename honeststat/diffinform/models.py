@@ -36,17 +36,5 @@ class Category(models.Model):
     def get_absolute_url(self):
         # return reverse('category', kwargs={'cat_id': self.pk})
         return reverse('category', kwargs={'cat_slug': self.slug})
-#
-#
-# class Graf(models.Model):
-#     title = models.CharField(max_length=255, verbose_name='Заголовок')
-#     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
-#     year = models.DateField(max_length=4)
-#     index = models.DecimalField(blank=True,max_digits=32, decimal_places=2)
-#     index_name = models.CharField(max_length=255)
-#     time_create = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
-#     time_update = models.DateTimeField(auto_now=True, verbose_name='Время изменения')
-#     cat = models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name='Категория')
-#     articles = models.ForeignKey('Articles', on_delete=models.PROTECT, verbose_name='Статья')
-#     is_published = models.BooleanField(default=True, verbose_name='Публикация')
+
 
