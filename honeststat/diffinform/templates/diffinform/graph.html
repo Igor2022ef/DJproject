@@ -1,12 +1,18 @@
 {% extends 'diffinform/base.html' %}
 
 {% block content %}
-<h1>{{title}}</h1>
-{% for g in graph_inform %}
-<p>{{g.name_product}}
-    {{g.cost}}
-    {{g.weight}}
-    {{g.date}}
-    {{g.shop}}
-    	{% endfor %}
+
+<!--  <meta name="viewport" content="width=device-width, initial-scale=1">-->
+<!--  <title>test</title>-->
+
+  {% autoescape off %}
+  {{ plot_div }}
+  {% endautoescape %}
+
 {% endblock %}
+
+
+
+
+
+

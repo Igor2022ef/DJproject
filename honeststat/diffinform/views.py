@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import *
 from .models import *
 
+from plotly.offline import plot
+from plotly.graph_objs import Scatter
+
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
@@ -15,7 +18,6 @@ def index(request):
     posts = Articles.objects.all()
     context = {
         'posts': posts,
-        'menu': menu,
         'title': 'Главная страница',
         'cat_selected': 0,
     }
@@ -29,7 +31,6 @@ def addpage(request):
     if request.method == 'POST':
         form = AddPostForm(request.POST)
         if form.is_valid():
-            # print(form.cleaned_data)
             form.save()
             return redirect('home')
     else:
@@ -48,7 +49,6 @@ def show_post(request, post_slug):
     post = get_object_or_404(Articles, slug=post_slug)
     context = {
         'post': post,
-        'menu': menu,
         'title': post.title,
         'cat_selected': post.cat_id,
     }
@@ -64,21 +64,31 @@ def show_category(request, cat_slug):
             posts1.append(p)
     context = {
         'posts': posts1,
-        'menu': menu,
         'title': cat_slug,
         'cat_selected': cat_slug,
     }
     return render(request, 'diffinform/index.html', context=context)
 
-def show_graph(request):
-    graph_dates = Buildgraph.objects.all()
-    context = {
-        'graph_inform': graph_dates,
-        'menu': menu,
-        'title': 'Графики статистических зависимостей',
-    }
-    return render(request, 'diffinform/graph.html', context=context)
+# def show_graph(request):
+#     graph_dates = Buildgraph.objects.all()
+#     context = {
+#         'graph_inform': graph_dates,
+#         'title': 'Графики статистических зависимостей',
+#     }
+#     return render(request, 'diffinform/graph.html', context=context)
 
+def show_graph(request):
+    x_data = [0,1,2,3]
+    y_data = [x**2 for x in x_data]
+    plot_div = plot([Scatter(x=x_data, y=y_data,
+                        mode='lines', name='test',
+                        opacity=0.8, marker_color='green')],
+               output_type='div')
+    context = {
+    'plot_div': plot_div,
+    'title': 'Графики статистических зависимостей',
+    }
+    return render(request, "diffinform/graph.html", context=context)
 
 
 
