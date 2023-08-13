@@ -17,17 +17,17 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 # класс обработки данных
-class BuildgrafResource(resources.ModelResource):
+class BuildgraphResource(resources.ModelResource):
     class Meta:
-        model = Buildgraf
+        model = Buildgraph
 
 # вывод данных на странице
-class BuildgrafAdmin(ImportExportModelAdmin):
-    resource_classes = [BuildgrafResource]
+class BuildgraphAdmin(ImportExportModelAdmin):
+    resource_classes = [BuildgraphResource]
     list_display = ('name_product', 'shop')
     search_fields = ('name_product','shop')
 
 
 admin.site.register(Articles, ArticlesAdmin)
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(Buildgraf, BuildgrafAdmin)
+admin.site.register(Buildgraph, BuildgraphAdmin)

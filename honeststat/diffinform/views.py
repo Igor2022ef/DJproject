@@ -7,7 +7,7 @@ from .models import *
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
-        {'title': "Построить графики", 'url_name': 'graf'},
+        {'title': "Построить графики", 'url_name': 'graph'},
         {'title': "Войти", 'url_name': 'login'},
 ]
 
@@ -70,14 +70,14 @@ def show_category(request, cat_slug):
     }
     return render(request, 'diffinform/index.html', context=context)
 
-def show_graf(request):
-    graf_dates = Buildgraf.objects.all()
+def show_graph(request):
+    graph_dates = Buildgraph.objects.all()
     context = {
-        'graf_inform': graf_dates,
+        'graph_inform': graph_dates,
         'menu': menu,
         'title': 'Графики статистических зависимостей',
     }
-    return render(request, 'diffinform/graf.html', context=context)
+    return render(request, 'diffinform/graph.html', context=context)
 
 
 
