@@ -126,7 +126,7 @@ def show_graph(request):
     y2=[]
     frames1=[]
     for g in graph_inf:
-        x1.append(g.name_product)
+        x1.append(g.date)
         y1.append(g.cost)
         y2.append((g.cost*2))
         frames1.append(go.Frame(data=[go.Scatter(x=x1, y=y1)]))

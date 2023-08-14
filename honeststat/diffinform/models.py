@@ -31,9 +31,9 @@ class Category(models.Model):
 
 class Buildgraph(models.Model):
     name_product = models.CharField(max_length=150)
-    cost = models.IntegerField(null=True)
+    cost = models.PositiveIntegerField(null=True)
     weight = models.CharField(max_length=150)
-    date = models.CharField(max_length=150)
+    date = models.DateField(auto_now=False, auto_now_add=False)
     shop = models.TextField(blank=True)
 
     def __str__(self):
