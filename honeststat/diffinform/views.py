@@ -6,6 +6,13 @@ from .models import *
 
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
+import plotly.graph_objs as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+
+import numpy as np
+np.random.seed(1)
+import pandas as pd
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -69,38 +76,82 @@ def show_category(request, cat_slug):
     }
     return render(request, 'diffinform/index.html', context=context)
 
+
 # def show_graph(request):
-#     graph_dates = Buildgraph.objects.all()
+#     graph_inf = Buildgraph.objects.all()
+#     x1=[]
+#     y1=[]
+#     for g in graph_inf:
+#         x1.append(g.name_product)
+#         y1.append(g.cost)
+#     plot_div = plot([Scatter(x=x1, y=y1,
+#                 mode='lines', name='test',
+#                 opacity=0.8, marker_color='green')],
+#                 output_type='div')
 #     context = {
-#         'graph_inform': graph_dates,
+#     'plot_div': plot_div,
+#     'title': 'Графики статистических зависимостей',
+#     }
+#     return render(request, "diffinform/graph.html", context=context)
+
+# def show_graph(request):
+#     N = 100
+#     x = np.random.rand(N)
+#     y = np.random.rand(N)
+#     colors = np.random.rand(N)
+#     sz = np.random.rand(N) * 30
+#     fig = go.Figure()
+#     fig.add_trace(go.Scatter(
+#         x=x,
+#         y=y,
+#         mode="markers",
+#         marker=go.scatter.Marker(
+#             size=sz,
+#             color=colors,
+#             opacity=0.6,
+#             colorscale="Viridis"
+#         )
+#     ))
+#     graph = fig.to_html(full_html=False, default_height=500, default_width=700)
+#     context = {
+#         'graph': graph,
 #         'title': 'Графики статистических зависимостей',
 #     }
-#     return render(request, 'diffinform/graph.html', context=context)
+#     return render(request, "diffinform/graph.html", context=context)
 
 def show_graph(request):
-    x_data = [0,1,2,3]
-    y_data = [x**2 for x in x_data]
-    plot_div = plot([Scatter(x=x_data, y=y_data,
-                        mode='lines', name='test',
-                        opacity=0.8, marker_color='green')],
-               output_type='div')
+    graph_inf = Buildgraph.objects.all()
+    x1=[]
+    y1=[]
+    y2=[]
+    frames1=[]
+    for g in graph_inf:
+        x1.append(g.name_product)
+        y1.append(g.cost)
+        y2.append((g.cost*2))
+        frames1.append(go.Frame(data=[go.Scatter(x=x1, y=y1)]))
+    # date =
+    layout = go.Layout(title="Какой-то индекс", xaxis={'title': 'x1', 'titlefont.color': 'red'}, yaxis={'title': 'x2'},
+                       legend={"visible":True})
+    fig = go.Figure(layout=layout)
+    fig = make_subplots(rows=1, cols=2)
+    fig.add_trace(go.Scatter(x=x1, y=y1, name='Первая'), 1, 1)
+    fig.frames = frames1
+    fig.add_trace(go.Scatter(x=x1, y=(y2), name='Вторая'), 1, 2)
+    fig.update_layout(hovermode="x", updatemenus=[dict(type="buttons", buttons=[dict(label="Play", method="animate", args=[None])])],)
+    # fig.update_traces(hoverinfo="x+y")
+
+
+    graph = fig.to_html(full_html=False, default_height=600, default_width=1000)
     context = {
-    'plot_div': plot_div,
-    'title': 'Графики статистических зависимостей',
-    }
+        'graph': graph,
+        'title': 'Графики статистических зависимостей',
+        }
     return render(request, "diffinform/graph.html", context=context)
 
 
 
-# def categories(request, cat):
-#     if (request.GET):
-#         print(request.GET)
-#     return HttpResponse(f"<h1>Статьи по категориям</h1>{cat}</p>")
 
-# def archive(request, year):
-#     if (int(year) > 2020):
-#         return redirect('/')
-#     return HttpResponse(f"<h1>Архив по годам</h1>{year}</p>")
 
 def pageNotFound(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
