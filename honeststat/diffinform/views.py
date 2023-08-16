@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
 
 from .forms import *
 from .models import *
@@ -21,14 +22,21 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Войти", 'url_name': 'login'},
 ]
 
-def index(request):
-    posts = Articles.objects.all()
-    context = {
-        'posts': posts,
-        'title': 'Главная страница',
-        'cat_selected': 0,
-    }
-    return render(request, 'diffinform/index.html', context=context)
+class ArticlesHome(ListView):
+    model = Articles
+    template_name = 'diffinform/index.html'
+    context_object_name = 'posts'
+    extra_context = {'title': 'Главная страница'}
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Главная страница'
+        context['cat_selected'] = 0
+        context['menu'] = menu
+        return context
+
+    def get_queryset(self):
+        return Articles.objects.filter(is_published=True)
 
 def about(request):
     return render(request, 'diffinform/about.html', {'menu': menu, 'title': 'О сайте'})
@@ -61,20 +69,23 @@ def show_post(request, post_slug):
     }
     return render(request, 'diffinform/post.html', context=context)
 
-def show_category(request, cat_slug):
-    posts = Articles.objects.all()
-    if len(posts) == 0:
-        raise Http404()
-    posts1=[]
-    for p in posts:
-        if p.cat.slug==cat_slug:
-            posts1.append(p)
-    context = {
-        'posts': posts1,
-        'title': cat_slug,
-        'cat_selected': cat_slug,
-    }
-    return render(request, 'diffinform/index.html', context=context)
+class ArticlesCategory(ListView):
+    model = Articles
+    template_name = 'diffinform/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self):
+        return Articles.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Категория - ' + str(context['posts'][0].cat)
+        context['menu'] = menu
+        context['cat_selected'] = context['posts'][0].cat_id
+        return context
+
+
 
 
 # def show_graph(request):
