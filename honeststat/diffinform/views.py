@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView
 
 from .forms import *
 from .models import *
@@ -32,7 +33,7 @@ class ArticlesHome(ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Главная страница'
         context['cat_selected'] = 0
-        context['menu'] = menu
+        # context['menu'] = menu
         return context
 
     def get_queryset(self):
@@ -42,15 +43,12 @@ def about(request):
     return render(request, 'diffinform/about.html', {'menu': menu, 'title': 'О сайте'})
 
 
-def addpage(request):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = AddPostForm()
-    return render(request, 'diffinform/addpage.html', {'form': form, 'menu': menu, 'title': 'Добавление статьи'})
+class AddPage(CreateView):
+    form_class = AddPostForm
+    template_name = 'diffinform/addpage.html'
+    extra_context = {'title': 'Добавление статьи'}
+    success_url = reverse_lazy('home') #Иначе работает метод get_absolute_url
+
 
 def contact(request):
     return HttpResponse("Обратная связь")
@@ -58,16 +56,17 @@ def contact(request):
 def login(request):
     return HttpResponse("Авторизация")
 
-def show_post(request, post_slug):
-    # post_check = Articles.objects.all()
-    # print(post_check)
-    post = get_object_or_404(Articles, slug=post_slug)
-    context = {
-        'post': post,
-        'title': post.title,
-        'cat_selected': post.cat_id,
-    }
-    return render(request, 'diffinform/post.html', context=context)
+class ShowPost(DetailView):
+    model = Articles
+    template_name = 'diffinform/post.html'
+    context_object_name = 'post'
+    slug_url_kwarg = 'post_slug'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = context['post']
+        # context['menu'] = menu
+        return context
 
 class ArticlesCategory(ListView):
     model = Articles
@@ -81,7 +80,7 @@ class ArticlesCategory(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Категория - ' + str(context['posts'][0].cat)
-        context['menu'] = menu
+        # context['menu'] = menu
         context['cat_selected'] = context['posts'][0].cat_id
         return context
 
