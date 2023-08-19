@@ -1,7 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from .utils import *
 from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
 from .models import *
@@ -16,39 +19,40 @@ import numpy as np
 np.random.seed(1)
 import pandas as pd
 
-menu = [{'title': "О сайте", 'url_name': 'about'},
-        {'title': "Добавить статью", 'url_name': 'add_page'},
-        {'title': "Обратная связь", 'url_name': 'contact'},
-        {'title': "Построить графики", 'url_name': 'graph'},
-        {'title': "Войти", 'url_name': 'login'},
-]
 
-class ArticlesHome(ListView):
+class ArticlesHome(DataMixin, ListView):
     model = Articles
     template_name = 'diffinform/index.html'
     context_object_name = 'posts'
     extra_context = {'title': 'Главная страница'}
 
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Главная страница'
-        context['cat_selected'] = 0
-        # context['menu'] = menu
+        c_def = self.get_user_context(title="Главная страница")
+        context = dict(list(context.items()) + list(c_def.items()))
+        # context['menu'] = menu                # реализовано через tags
         return context
 
     def get_queryset(self):
         return Articles.objects.filter(is_published=True)
 
+# @login_required                                        декоратор ограничивает доступ не авторизованных пользователей
 def about(request):
     return render(request, 'diffinform/about.html', {'menu': menu, 'title': 'О сайте'})
 
 
-class AddPage(CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'diffinform/addpage.html'
     extra_context = {'title': 'Добавление статьи'}
-    success_url = reverse_lazy('home') #Иначе работает метод get_absolute_url
+    success_url = reverse_lazy('home')                   #Иначе работает метод get_absolute_url
+    login_url = reverse_lazy('home')
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Добавление статьи")
+        return dict(list(context.items()) + list(c_def.items()))
 
 def contact(request):
     return HttpResponse("Обратная связь")
@@ -56,7 +60,7 @@ def contact(request):
 def login(request):
     return HttpResponse("Авторизация")
 
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
     model = Articles
     template_name = 'diffinform/post.html'
     context_object_name = 'post'
@@ -64,11 +68,10 @@ class ShowPost(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = context['post']
-        # context['menu'] = menu
-        return context
+        c_def = self.get_user_context(title = context['post'])
+        return dict(list(context.items()) + list(c_def.items()))
 
-class ArticlesCategory(ListView):
+class ArticlesCategory(DataMixin, ListView):
     model = Articles
     template_name = 'diffinform/index.html'
     context_object_name = 'posts'
@@ -79,13 +82,9 @@ class ArticlesCategory(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Категория - ' + str(context['posts'][0].cat)
-        # context['menu'] = menu
-        context['cat_selected'] = context['posts'][0].cat_id
-        return context
-
-
-
+        c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat),
+                                      cat_selected=context['posts'][0].cat_id)
+        return dict(list(context.items()) + list(c_def.items()))
 
 # def show_graph(request):
 #     graph_inf = Buildgraph.objects.all()
