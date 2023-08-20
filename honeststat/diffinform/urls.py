@@ -12,5 +12,6 @@ urlpatterns = [
     # path('category/<int:cat_id>/', show_category, name='category'),
     path('category/<slug:cat_slug>/', ArticlesCategory.as_view(), name='category'),
     # re_path(r'^archive/(?P<year>[0-9]{4})/', archive, name='archive'),
-    path('graph/', show_graph, name='graph'),
+    # path('graph/', show_graph, name='graph'),
+    path('graph/', Graph.as_view(), name='graph'),
 ]

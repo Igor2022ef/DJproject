@@ -17,6 +17,8 @@ class Articles(models.Model):
 
     def get_absolute_url(self):
         return reverse('post', kwargs={'post_slug': self.slug})
+    class Meta:
+        ordering = ['id']
 
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name='Название категории')

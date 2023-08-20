@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from .utils import *
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
@@ -39,8 +40,11 @@ class ArticlesHome(DataMixin, ListView):
 
 # @login_required                                        декоратор ограничивает доступ не авторизованных пользователей
 def about(request):
-    return render(request, 'diffinform/about.html', {'menu': menu, 'title': 'О сайте'})
-
+    contact_list = Articles.objects.all()
+    paginator = Paginator(contact_list, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'diffinform/about.html', {'page_obj': page_obj, 'menu': menu, 'title': 'О сайте'})
 
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
@@ -128,37 +132,62 @@ class ArticlesCategory(DataMixin, ListView):
 #     }
 #     return render(request, "diffinform/graph.html", context=context)
 
-def show_graph(request):
-    graph_inf = Buildgraph.objects.all()
-    x1=[]
-    y1=[]
-    y2=[]
-    frames1=[]
-    for g in graph_inf:
-        x1.append(g.date)
-        y1.append(g.cost)
-        y2.append((g.cost*2))
-        frames1.append(go.Frame(data=[go.Scatter(x=x1, y=y1)]))
-    # date =
-    layout = go.Layout(title="Какой-то индекс", xaxis={'title': 'x1', 'titlefont.color': 'red'}, yaxis={'title': 'x2'},
-                       legend={"visible":True})
-    fig = go.Figure(layout=layout)
-    fig = make_subplots(rows=1, cols=2)
-    fig.add_trace(go.Scatter(x=x1, y=y1, name='Первая'), 1, 1)
-    fig.frames = frames1
-    fig.add_trace(go.Scatter(x=x1, y=(y2), name='Вторая'), 1, 2)
-    fig.update_layout(hovermode="x", updatemenus=[dict(type="buttons", buttons=[dict(label="Play", method="animate", args=[None])])],)
-    # fig.update_traces(hoverinfo="x+y")
+# def show_graph(request):
+#     graph_inf = Buildgraph.objects.all()
+#     x1=[]
+#     y1=[]
+#     y2=[]
+#     frames1=[]
+#     for g in graph_inf:
+#         x1.append(g.date)
+#         y1.append(g.cost)
+#         y2.append((g.cost*2))
+#         frames1.append(go.Frame(data=[go.Scatter(x=x1, y=y1)]))
+#     layout = go.Layout(title="Какой-то индекс", xaxis={'title': 'x1', 'titlefont.color': 'red'}, yaxis={'title': 'x2'},
+#                        legend={"visible":True})
+#     fig = go.Figure(layout=layout)
+#     fig = make_subplots(rows=1, cols=2)
+#     fig.add_trace(go.Scatter(x=x1, y=y1, name='Первая'), 1, 1)
+#     fig.frames = frames1
+#     fig.add_trace(go.Scatter(x=x1, y=(y2), name='Вторая'), 1, 2)
+#     fig.update_layout(hovermode="x", updatemenus=[dict(type="buttons", buttons=[dict(label="Play", method="animate", args=[None])])],)
+#
+#     graph = fig.to_html(full_html=False, default_height=600, default_width=1000)
+#     context = {
+#         'graph': graph,
+#         'title': 'Графики статистических зависимостей',
+#         }
+    # return render(request, "diffinform/graph.html", context=context)
 
+class Graph(DataMixin, ListView):
+    model = Buildgraph
+    template_name = 'diffinform/graph.html'
+    extra_context = {'title': 'Построение графиков'}
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(Graph, self).get_context_data(**kwargs)
+        graph_inf = Buildgraph.objects.all()
+        x1 = []
+        y1 = []
+        y2 = []
+        frames1 = []
+        for g in graph_inf:
+            x1.append(g.date)
+            y1.append(g.cost)
+            y2.append((g.cost * 2))
+            frames1.append(go.Frame(data=[go.Scatter(x=x1, y=y1)]))
+        layout = go.Layout(title="Какой-то индекс", xaxis={'title': 'x1', 'titlefont.color': 'red'},
+                           yaxis={'title': 'x2'},
+                           legend={"visible": True})
+        fig = go.Figure(layout=layout)
+        fig = make_subplots(rows=1, cols=2)
+        fig.add_trace(go.Scatter(x=x1, y=y1, name='Первая'), 1, 1)
+        fig.frames = frames1
+        fig.add_trace(go.Scatter(x=x1, y=(y2), name='Вторая'), 1, 2)
+        fig.update_layout(hovermode="x", updatemenus=[
+            dict(type="buttons", buttons=[dict(label="Play", method="animate", args=[None])])], )
 
-    graph = fig.to_html(full_html=False, default_height=600, default_width=1000)
-    context = {
-        'graph': graph,
-        'title': 'Графики статистических зависимостей',
-        }
-    return render(request, "diffinform/graph.html", context=context)
-
-
+        context['graph'] = fig.to_html()
+        return context
 
 
 
