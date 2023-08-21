@@ -27,7 +27,6 @@ class ArticlesHome(DataMixin, ListView):
     context_object_name = 'posts'
     extra_context = {'title': 'Главная страница'}
 
-
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title="Главная страница")
@@ -164,7 +163,8 @@ class Graph(DataMixin, ListView):
     template_name = 'diffinform/graph.html'
     extra_context = {'title': 'Построение графиков'}
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(Graph, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        # c_def = self.get_user_context(title="Построение графиков")
         graph_inf = Buildgraph.objects.all()
         x1 = []
         y1 = []
@@ -185,9 +185,17 @@ class Graph(DataMixin, ListView):
         fig.add_trace(go.Scatter(x=x1, y=(y2), name='Вторая'), 1, 2)
         fig.update_layout(hovermode="x", updatemenus=[
             dict(type="buttons", buttons=[dict(label="Play", method="animate", args=[None])])], )
-
         context['graph'] = fig.to_html()
         return context
+
+class RegisterUser(DataMixin, CreateView):
+    form_class = RegisterUserForm
+    template_name = 'diffinform/register.html'
+    success_url = reverse_lazy('login')
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Регистрация")
+        return dict(list(context.items()) + list(c_def.items()))
 
 
 
