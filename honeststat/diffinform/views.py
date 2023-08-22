@@ -158,11 +158,10 @@ class ArticlesCategory(DataMixin, ListView):
 #         }
     # return render(request, "diffinform/graph.html", context=context)
 
-class Graph(DataMixin, ListView):
+class Graph(DataMixin, TemplateView):
     model = Buildgraph
     template_name = 'diffinform/graph.html'
-    # extra_context = {'title': 'Построение графиков'}
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, * , object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title="Построение графиков")
         context.update(c_def)
