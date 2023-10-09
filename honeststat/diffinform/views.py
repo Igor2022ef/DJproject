@@ -2,12 +2,18 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
+from django.forms import model_to_dict
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .serializers import Articlesserializer
 from .utils import *
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework import generics
 
 from .forms import *
 from .models import *
@@ -43,8 +49,9 @@ class ArticlesHome(DataMixin, ListView):
 def about(request):
     contact_list = Articles.objects.all()
     paginator = Paginator(contact_list, 3)
-    page_number = request.GET.get('page')
+    page_number = request.GET.post()
     page_obj = paginator.get_page(page_number)
+
     return render(request, 'diffinform/about.html', {'page_obj': page_obj, 'menu': menu, 'title': 'О сайте'})
 
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
@@ -220,6 +227,49 @@ def logout_user(request):
     logout(request)
     return redirect('login')
 
-
 def pageNotFound(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
+class HoneststatAPIView_esye(generics.ListCreateAPIView):
+    queryset = Articles.objects.all()
+    serializer_class = Articlesserializer
+
+class HoneststatAPIView(APIView):
+    def get(self, request):
+        steck_inf = Articles.objects.all()
+        return Response({'infa': Articlesserializer(steck_inf, many=True).data})
+
+    def post(self, request):
+        serializer = Articlesserializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'infa': serializer.data})
+
+    def put(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        if not pk:
+            return Response({'error': 'Method put not allowed'})
+        try:
+            instance = Articles.objects.get(pk=pk)
+        except:
+            return Response({'error': 'Object does not exists'})
+        serializer = Articlesserializer(data=request.data, instance=instance)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'post': serializer.data})
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        if not pk:
+            return Response({'error': 'Method delete not allowed'})
+        try:
+            target_del = Articles.objects.get(pk=pk)
+        except:
+            return Response({'error': 'Object does not exists'})
+        target_del.delete()
+        return Response({'post': 'delete row' + str(pk)})
+
+
+
+
+

@@ -19,10 +19,15 @@ from django.contrib import admin
 from django.urls import path, include
 from diffinform.views import *
 from honeststat import settings
+from diffinform.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('diffinform.urls')),
+    path('api/v1/honeststatlist', HoneststatAPIView_esye.as_view()),
+    path('api/v1/honeststatlist/<int:pk>/', HoneststatAPIView_esye.as_view()),
+    # path('api/v1/honeststatlist', HoneststatAPIView.as_view()),
+    # path('api/v1/honeststatlist/<int:pk>/', HoneststatAPIView.as_view()),
 ]
 
 handler404 = pageNotFound
